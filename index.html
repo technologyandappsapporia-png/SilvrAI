@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SilvrAI - Day 2</title>
+    <title>SilvrAI - Ultimate Edition</title>
     <style>
-        /* Day 1 Core Styles Ke Sath Day 2 Ka Balance */
+        /* Global Core Setup */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        
+        /* Dynamic Theme Variables - Changing according to levels */
         body {
             background: linear-gradient(-45deg, #0f172a, #1e1b4b, #311042, #020617);
             background-size: 400% 400%;
@@ -15,123 +17,182 @@
             color: white;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: 24px;
-            overflow-y: auto; /* Day 2 me list lambi ho sakti hai isliye scroll on kiya */
+            padding: 20px;
+            overflow-y: auto;
             user-select: none;
         }
+        
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; margin-bottom: 24px; }
-        .logo { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: #f8fafc; }
-        .points-box { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.1); }
-        .points-text { color: #c084fc; font-weight: bold; font-size: 18px; }
-        
-        .center-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 24px; }
+
+        /* Top Status Section */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 20px; }
+        .logo { font-size: 26px; font-weight: 800; tracking-spacing: 1px; color: #f8fafc; }
+        .stats-row { display: flex; gap: 10px; }
+        .stat-badge { background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.1); font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .dp-badge { color: #c084fc; }
+        .streak-badge { color: #f97316; }
+
+        /* Level Display */
+        .level-banner { text-align: center; background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.2), transparent); padding: 4px 0; margin-bottom: 15px; font-size: 14px; font-weight: bold; color: #e2e8f0; border-radius: 8px; }
+
+        /* Robot Avatar Center Box */
+        .center-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 25px; }
         .fluid-avatar {
-            width: 130px; height: 130px; border-radius: 50%;
+            width: 120px; height: 120px; border-radius: 50%;
             background: rgba(168, 85, 247, 0.2); border: 2px solid #a855f7;
-            display: flex; align-items: center; justify-content: center; font-size: 55px;
+            display: flex; align-items: center; justify-content: center; font-size: 50px;
             box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
             animation: pulseGlow 3s ease-in-out infinite;
             transition: transform 0.1s;
         }
-        .fluid-avatar:active { transform: scale(0.9); }
         @keyframes pulseGlow {
             0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(168, 85, 247, 0.4); }
             50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(168, 85, 247, 0.7); }
         }
-        .status-text { color: #94a3b8; margin-top: 20px; font-size: 16px; font-weight: 500; text-align: center; }
-        
-        .button-row { display: flex; gap: 16px; margin-bottom: 32px; }
-        .btn { flex: 1; padding: 14px 0; border: none; border-radius: 16px; font-weight: bold; font-size: 16px; color: white; transition: transform 0.1s; cursor: pointer; }
-        .btn:active { transform: scale(0.95); }
-        .btn-calm { background: #06b6d4; box-shadow: 0 10px 15px -3px rgba(6, 182, 212, 0.3); }
-        .btn-creative { background: #ec4899; box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.3); }
+        .status-text { color: #94a3b8; margin-top: 15px; font-size: 15px; font-weight: 500; text-align: center; }
 
-        /* === 📋 DAY 2 NEW STYLES: Tasks List Box === */
-        .quest-container { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); padding: 20px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 16px; }
-        .quest-title { font-size: 18px; font-weight: bold; color: #c084fc; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .task-box { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; transition: all 0.3s; }
-        .task-text { font-size: 14px; color: #cbd5e1; }
-        .claim-btn { background: #a855f7; color: white; border: none; padding: 8px 14px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
+        /* Mood Quick Buttons */
+        .button-row { display: flex; gap: 12px; margin-bottom: 25px; }
+        .btn { flex: 1; padding: 14px 0; border: none; border-radius: 16px; font-weight: bold; font-size: 15px; color: white; transition: transform 0.1s; cursor: pointer; }
+        .btn:active { transform: scale(0.95); }
+        .btn-calm { background: #06b6d4; box-shadow: 0 8px 15px rgba(6, 182, 212, 0.2); }
+        .btn-creative { background: #ec4899; box-shadow: 0 8px 15px rgba(236, 72, 153, 0.2); }
+
+        /* Dashboard App Containers (Quests & Community) */
+        .app-card { background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(12px); padding: 18px; border-radius: 22px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 20px; }
+        .card-title { font-size: 16px; font-weight: bold; color: #cbd5e1; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        
+        /* Daily Quests Layout */
+        .task-box { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 10px; }
+        .task-text { font-size: 13px; color: #94a3b8; }
+        .claim-btn { background: #a855f7; color: white; border: none; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
         .claim-btn:active { transform: scale(0.9); }
-        .claim-btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
+        .claim-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+
+        /* Creative Space Feed Layout */
+        .feed-input-zone { display: flex; gap: 8px; margin-bottom: 14px; }
+        .feed-input { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px; color: white; font-size: 13px; outline: none; }
+        .post-btn { background: #10b981; border: none; border-radius: 12px; padding: 0 16px; font-size: 13px; font-weight: bold; color: white; cursor: pointer; }
+        .feed-container { max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .feed-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; font-size: 13px; color: #cbd5e1; word-break: break-word; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- Day 1 Features Continued -->
+    <!-- Top Info Grid -->
     <div class="top-bar">
         <div class="logo">SilvrAI</div>
-        <div class="points-box">
-            <span class="points-text">✨ <span id="pointsDisplay">0</span> DP</span>
+        <div class="stats-row">
+            <div class="stat-badge streak-badge">🔥 <span id="streakDisplay">1</span></div>
+            <div class="stat-badge dp-badge">✨ <span id="pointsDisplay">0</span> DP</div>
         </div>
     </div>
 
+    <!-- Level Banner -->
+    <div class="level-banner" id="levelDisplay">⚡ Level 1: Novice Space</div>
+
+    <!-- Main Brain/Avatar -->
     <div class="center-zone">
         <div id="avatar" class="fluid-avatar">🤖</div>
-        <p class="status-text">How is your energy right now?</p>
+        <p class="status-text" id="statusMessage">How is your energy right now?</p>
     </div>
 
+    <!-- Interaction Hub -->
     <div class="button-row">
-        <button onclick="handleMood('Calm', 10, '😌')" class="btn btn-calm">Calm (+10)</button>
-        <button onclick="handleMood('Creative', 20, '✨')" class="btn btn-creative">Creative (+20)</button>
+        <button onclick="handleMood('Calm', 15, '😌')" class="btn btn-calm">Calm (+15)</button>
+        <button onclick="handleMood('Creative', 25, '⚡')" class="btn btn-creative">Creative (+25)</button>
     </div>
 
-    <!-- === 📋 DAY 2 FEATURE: Daily Life RPG Quests Section === -->
-    <div class="quest-container">
-        <div class="quest-title">⚔️ Daily Quests</div>
-        
-        <!-- Task 1 -->
-        <div class="task-box" id="task1Box">
-            <span class="task-text">💧 Drink 8 Glasses of Water</span>
-            <button onclick="completeTask('task1Box', 50)" class="claim-btn">Claim +50 DP</button>
-        </div>
-        
-        <!-- Task 2 -->
-        <div class="task-box" id="task2Box">
-            <span class="task-text">📚 Code / Learn for 15 Mins</span>
-            <button onclick="completeTask('task2Box', 100)" class="claim-btn">Claim +100 DP</button>
+    <!-- Daily Quests Card -->
+    <div class="app-card">
+        <div class="card-title">⚔️ Daily Quests</div>
+        <div id="questsList">
+            <div class="task-box" id="t1">
+                <span class="task-text">💧 Complete 8 Glasses of Water</span>
+                <button onclick="completeTask('t1', 50)" class="claim-btn">Claim +50</button>
+            </div>
+            <div class="task-box" id="t2">
+                <span class="task-text">📚 Practice Coding / Learn 15 Mins</span>
+                <button onclick="completeTask('t2', 100)" class="claim-btn">Claim +100</button>
+            </div>
+            <div class="task-box" id="t3">
+                <span class="task-text">🏃 Perform a 10 Minute Stretch</span>
+                <button onclick="completeTask('t3', 60)" class="claim-btn">Claim +60</button>
+            </div>
         </div>
     </div>
 
-    <!-- Core App Logic (Day 1 + Day 2 Combined) -->
+    <!-- Anti-Algorithm Creative Space Card -->
+    <div class="app-card">
+        <div class="card-title">💬 Creative Space (No Likes Feed)</div>
+        <div class="feed-input-zone">
+            <input type="text" id="postInput" class="feed-input" placeholder="Drop your progress or thoughts today..." maxlength="100">
+            <button onclick="addPost()" class="post-btn">Drop</button>
+        </div>
+        <div id="feedBox" class="feed-container">
+            <div class="feed-item">🚀 Initializing SilvrAI community node. Welcome!</div>
+            <div class="feed-item">🎨 Completed my daily routine layout successfully today!</div>
+        </div>
+    </div>
+
+    <!-- Deep Logic Architecture -->
     <script>
         let totalPoints = 0;
-        const pointsDisplay = document.getElementById('pointsDisplay');
-        const avatar = document.getElementById('avatar');
+        let userLevel = 1;
+        let currentStreak = 1;
 
-        // Day 1 Logic
+        const pointsDisplay = document.getElementById('pointsDisplay');
+        const streakDisplay = document.getElementById('streakDisplay');
+        const levelDisplay = document.getElementById('levelDisplay');
+        const avatar = document.getElementById('avatar');
+        const statusMessage = document.getElementById('statusMessage');
+        const postInput = document.getElementById('postInput');
+        const feedBox = document.getElementById('feedBox');
+
+        window.onload = function() {
+            currentStreak = Math.floor(Math.random() * 3) + 1;
+            streakDisplay.innerText = currentStreak;
+        };
+
         function handleMood(mood, points, emoji) {
-            totalPoints += points;
-            pointsDisplay.innerText = totalPoints;
+            updatePoints(points);
             avatar.innerText = emoji;
-            setTimeout(() => { avatar.innerText = '🤖'; }, 1500);
+            statusMessage.innerText = `System modulated to ${mood} frequency!`;
+            
+            setTimeout(() => { 
+                avatar.innerText = '🤖'; 
+                statusMessage.innerText = "How is your energy right now?";
+            }, 1500);
         }
 
-        // === 🧠 DAY 2 NEW LOGIC: Task Completion ===
         function completeTask(boxId, bonusPoints) {
             const taskBox = document.getElementById(boxId);
             const btn = taskBox.querySelector('.claim-btn');
             
-            // Task completed effect
-            taskBox.style.opacity = '0.4';
-            taskBox.style.border = '1px solid rgba(34, 197, 94, 0.3)'; // Green border hint
+            taskBox.style.opacity = '0.35';
             btn.disabled = true;
-            btn.innerText = '✅ Done';
+            btn.innerText = '✅ Claimed';
             
-            // Robot reaction to task success
-            avatar.innerText = '🚀';
-            setTimeout(() => { avatar.innerText = '🤖'; }, 1200);
+            avatar.innerText = '🌟';
+            statusMessage.innerText = "Objective Secured! Reward processed.";
+            
+            setTimeout(() => { 
+                avatar.innerText = '🤖';
+                statusMessage.innerText = "How is your energy right now?";
+            }, 1200);
 
-            // Add points
-            totalPoints += bonusPoints;
-            pointsDisplay.innerText = totalPoints;
+            updatePoints(bonusPoints);
         }
-    </script>
-</body>
-</html>
+
+        function addPost() {
+            const txt = postInput.value.trim();
+            if(txt === "") return;
+
+            const newItem = document.createElement('div');
+            newItem.className = 'feed-item';
+            newItem.innerText = `📡 Anonymous Node: ${txt}`;
