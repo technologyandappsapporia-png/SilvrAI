@@ -6,11 +6,12 @@ export default function App() {
   const [mood, setMood] = useState('Calm'); 
   const [quests, setQuests] = useState([
     { id: '1', text: 'Meditate for 10 minutes', completed: false, xpReward: 20 },
-    { id: '2', text: 'Write 3 creative ideas', completed: false, xpReward: 30 },
+    { id: '2', text: 'Write 3 creative ideas', completed: false, xpReward: 30 }
   ]);
   const [newQuestText, setNewQuestText] = useState('');
+  const [newQuestXp, setNewQuestXp] = useState('25'); 
   const [messages, setMessages] = useState([
-    { id: '1', text: 'Welcome to the Anti-Algorithm Space. No trends, just pure thoughts.', sender: 'System' },
+    { id: '1', text: 'Welcome to the Anti-Algorithm Space. No trends, just pure thoughts.', sender: 'System' }
   ]);
   const [inputText, setInputText] = useState('');
 
@@ -22,9 +23,12 @@ export default function App() {
 
   const addQuest = () => {
     if (newQuestText.trim() === '') return;
-    const newQuest = { id: Date.now().toString(), text: newQuestText, completed: false, xpReward: 25 };
+    const rewardAmount = parseInt(newQuestXp, 10);
+    const finalXpReward = isNaN(rewardAmount) || rewardAmount <= 0 ? 25 : rewardAmount;
+    const newQuest = { id: Date.now().toString(), text: newQuestText, completed: false, xpReward: finalXpReward };
     setQuests([...quests, newQuest]);
     setNewQuestText('');
+    setNewQuestXp('25'); 
   };
 
   const toggleQuest = (id, completed, xpReward) => {
@@ -51,6 +55,20 @@ export default function App() {
     setMessages(messages.filter(msg => msg.id !== id));
   };
 
+  const resetProgress = () => {
+    setXp(0);
+    setQuests([
+      { id: '1', text: 'Meditate for 10 minutes', completed: false, xpReward: 20 },
+      { id: '2', text: 'Write 3 creative ideas', completed: false, xpReward: 30 }
+    ]);
+    setMessages([
+      { id: '1', text: 'Welcome to the Anti-Algorithm Space. No trends, just pure thoughts.', sender: 'System' }
+    ]);
+    setNewQuestText('');
+    setNewQuestXp('25');
+    setInputText('');
+  };
+
   const backgroundColor = mood === 'Calm' ? '#0F172A' : '#1E1B4B';
 
   return (
@@ -72,7 +90,8 @@ export default function App() {
         <View style={styles.cardBox}>
           <Text style={styles.sectionTitle}>Daily Quests</Text>
           <View style={styles.inputContainer}>
-            <TextInput style={styles.input} placeholder="Create a custom quest..." placeholderTextColor="#94A3B8" value={newQuestText} onChangeText={setNewQuestText} />
+            <TextInput style={[styles.input, { flex: 2 }]} placeholder="Custom quest..." placeholderTextColor="#94A3B8" value={newQuestText} onChangeText={setNewQuestText} />
+            <TextInput style={styles.xpInput} placeholder="XP" placeholderTextColor="#94A3B8" keyboardType="numeric" value={newQuestXp} onChangeText={setNewQuestXp} maxLength={3} />
             <TouchableOpacity style={styles.addButton} onPress={addQuest}><Text style={styles.buttonTextInside}>+ Add</Text></TouchableOpacity>
           </View>
           {quests.map((item) => (
@@ -100,6 +119,7 @@ export default function App() {
             ))}
           </View>
         </View>
+        <TouchableOpacity style={styles.resetButton} onPress={resetProgress}><Text style={styles.resetButtonText}>🧹 Reset Progress & Day</Text></TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -122,10 +142,11 @@ const styles = StyleSheet.create({
   buttonText: { color: '#FFFFFF', fontWeight: '600' },
   cardBox: { backgroundColor: '#1E293B', borderRadius: 16, padding: 16, marginBottom: 25, borderWidth: 1, borderColor: '#334155' },
   inputContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, width: '100%' },
-  input: { flex: 1, backgroundColor: '#334155', borderRadius: 12, paddingHorizontal: 16, color: '#FFFFFF', height: 42, fontSize: 13 },
-  addButton: { backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center', height: 34, paddingHorizontal: 12, borderRadius: 8, marginLeft: 8 },
+  input: { flex: 1, backgroundColor: '#334155', borderRadius: 12, paddingHorizontal: 14, color: '#FFFFFF', height: 38, fontSize: 13 },
+  xpInput: { width: 44, backgroundColor: '#334155', borderRadius: 12, textAlign: 'center', color: '#34D399', height: 38, fontSize: 13, marginLeft: 6, fontWeight: '600' },
+  addButton: { backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center', height: 32, paddingHorizontal: 10, borderRadius: 8, marginLeft: 6 },
   sendButton: { backgroundColor: '#6366F1', justifyContent: 'center', alignItems: 'center', height: 34, paddingHorizontal: 14, borderRadius: 8, marginLeft: 8 },
-  buttonTextInside: { color: '#FFFFFF', fontWeight: '600', fontSize: 13 },
+  buttonTextInside: { color: '#FFFFFF', fontWeight: '600', fontSize: 12 },
   questItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#334155', padding: 14, borderRadius: 10, marginBottom: 10 },
   questTextContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginRight: 10 },
   questCompleted: { backgroundColor: '#1E293B', opacity: 0.6, borderColor: '#475569', borderWidth: 1 },
@@ -141,5 +162,7 @@ const styles = StyleSheet.create({
   msgTextContainer: { flex: 1, marginRight: 10 },
   msgText: { color: '#F8FAFC', fontSize: 14 },
   chatDeleteButton: { padding: 4 },
-  chatDeleteIcon: { fontSize: 14 }
+  chatDeleteIcon: { fontSize: 14 },
+  resetButton: { backgroundColor: '#7F1D1D', padding: 14, borderRadius: 12, alignItems: 'center', marginTop: 10, marginBottom: 20, borderWidth: 1, borderColor: '#991B1B' },
+  resetButtonText: { color: '#FCA5A5', fontWeight: '700', fontSize: 14 }
 });
