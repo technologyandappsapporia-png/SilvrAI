@@ -4,165 +4,127 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, SafeAr
 export default function App() {
   const [xp, setXp] = useState(0);
   const [mood, setMood] = useState('Calm'); 
+  const [newTxt, setNewTxt] = useState('');
+  const [newXp, setNewXp] = useState('25'); 
+  const [inTxt, setInTxt] = useState('');
+
   const [quests, setQuests] = useState([
-    { id: '1', text: 'Meditate for 10 minutes', completed: false, xpReward: 20 },
-    { id: '2', text: 'Write 3 creative ideas', completed: false, xpReward: 30 }
+    { id: '1', text: 'Meditate 10m', completed: false, xpReward: 20 },
+    { id: '2', text: 'Write Ideas', completed: false, xpReward: 30 }
   ]);
-  const [newQuestText, setNewQuestText] = useState('');
-  const [newQuestXp, setNewQuestXp] = useState('25'); 
+
   const [messages, setMessages] = useState([
-    { id: '1', text: 'Welcome to the Anti-Algorithm Space. No trends, just pure thoughts.', sender: 'System' }
+    { id: '1', text: 'Pure thoughts only.', sender: 'System' }
   ]);
-  const [inputText, setInputText] = useState('');
 
-  const getLevel = (currentXp) => {
-    if (currentXp >= 150) return 'Cyber Overlord';
-    if (currentXp >= 60) return 'Cosmos';
-    return 'Novice';
+  const total = quests.length;
+  const done = quests.filter(q => q.completed).length;
+  const rate = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const addQ = () => {
+    if (!newTxt.trim()) return;
+    const num = parseInt(newXp, 10);
+    const reward = isNaN(num) || num <= 0 ? 25 : num;
+    setQuests([...quests, { id: Date.now().toString(), text: newTxt, completed: false, xpReward: reward }]);
+    setNewTxt('');
+    setNewXp('25'); 
   };
 
-  const addQuest = () => {
-    if (newQuestText.trim() === '') return;
-    const rewardAmount = parseInt(newQuestXp, 10);
-    const finalXpReward = isNaN(rewardAmount) || rewardAmount <= 0 ? 25 : rewardAmount;
-    const newQuest = { id: Date.now().toString(), text: newQuestText, completed: false, xpReward: finalXpReward };
-    setQuests([...quests, newQuest]);
-    setNewQuestText('');
-    setNewQuestXp('25'); 
-  };
-
-  const toggleQuest = (id, completed, xpReward) => {
+  const toggleQ = (id, comp, rwd) => {
     setQuests(quests.map(q => q.id === id ? { ...q, completed: !q.completed } : q));
-    if (!completed) { setXp(prevXp => prevXp + xpReward); } 
-    else { setXp(prevXp => Math.max(0, prevXp - xpReward)); }
+    setXp(prev => comp ? Math.max(0, prev - rwd) : prev + rwd);
   };
 
-  const deleteQuest = (id, completed, xpReward) => {
-    if (completed) { setXp(prevXp => Math.max(0, prevXp - xpReward)); }
+  const delQ = (id, comp, rwd) => {
+    if (comp) setXp(prev => Math.max(0, prev - rwd));
     setQuests(quests.filter(q => q.id !== id));
   };
 
-  const sendMessage = () => {
-    if (inputText.trim() === '') return;
-    const newMsg = { id: Date.now().toString(), text: inputText, sender: 'User' };
-    setMessages([newMsg, ...messages]);
-    setInputText('');
-    setXp(prevXp => prevXp + 5);
+  const sendM = () => {
+    if (!inTxt.trim()) return;
+    setMessages([{ id: Date.now().toString(), text: inTxt, sender: 'User' }, ...messages]);
+    setInTxt('');
+    setXp(prev => prev + 5);
   };
 
-  const deleteMessage = (id, sender) => {
-    if (sender === 'User') { setXp(prevXp => Math.max(0, prevXp - 5)); }
-    setMessages(messages.filter(msg => msg.id !== id));
+  const delM = (id, snd) => {
+    if (snd === 'User') setXp(prev => Math.max(0, prev - 5));
+    setMessages(messages.filter(m => m.id !== id));
   };
 
-  const resetProgress = () => {
-    setXp(0);
-    setQuests([
-      { id: '1', text: 'Meditate for 10 minutes', completed: false, xpReward: 20 },
-      { id: '2', text: 'Write 3 creative ideas', completed: false, xpReward: 30 }
-    ]);
-    setMessages([
-      { id: '1', text: 'Welcome to the Anti-Algorithm Space. No trends, just pure thoughts.', sender: 'System' }
-    ]);
-    setNewQuestText('');
-    setNewQuestXp('25');
-    setInputText('');
-  };
-
-  const backgroundColor = mood === 'Calm' ? '#0F172A' : '#1E1B4B';
+  const isC = mood === 'Calm';
+  const bg = isC ? '#0F172A' : '#0F1123';
+  const border = isC ? '#334155' : '#4C1D95';
+  const accent = isC ? '#38BDF8' : '#A78BFA';
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor }]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: bg }}>
       <StatusBar barStyle="light-content" />
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.appTitle}>SilvrAI</Text>
-          <View style={styles.badgeContainer}><Text style={styles.badgeText}>{getLevel(xp)}</Text></View>
-          <Text style={styles.xpText}>XP: {xp}</Text>
+      <ScrollView contentContainerStyle={{ padding: 15, paddingBottom: 30 }}>
+        
+        {/* HEADER */}
+        <View style={{ alignItems: 'center', marginBottom: 20 }}>
+          <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#FFF' }}>SilvrAI</Text>
+          <View style={{ backgroundColor: accent, paddingVertical: 4, paddingHorizontal: 12, borderRadius: 15, marginTop: 5 }}>
+            <Text style={{ color: '#000', fontWeight: 'bold', fontSize: 12 }}>{xp >= 150 ? 'Cyber Overlord' : xp >= 60 ? 'Cosmos' : 'Novice'}</Text>
+          </View>
+          <Text style={{ color: '#94A3B8', marginTop: 4, fontSize: 14 }}>XP: {xp}</Text>
         </View>
-        <View style={styles.moodContainer}>
-          <Text style={styles.sectionTitle}>Current Mood</Text>
-          <View style={styles.row}>
-            <TouchableOpacity style={[styles.moodButton, mood === 'Calm' && styles.activeCalm]} onPress={() => setMood('Calm')}><Text style={styles.buttonText}>🧘 Calm</Text></TouchableOpacity>
-            <TouchableOpacity style={[styles.moodButton, mood === 'Creative' && styles.activeCreative]} onPress={() => setMood('Creative')}><Text style={styles.buttonText}>🎨 Creative</Text></TouchableOpacity>
+
+        {/* DASHBOARD */}
+        <View style={{ backgroundColor: '#1E293B', borderRadius: 12, padding: 12, marginBottom: 20, borderWidth: 1, borderColor: border }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#FFF', marginBottom: 10 }}>Dashboard</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+            <View style={{ alignItems: 'center' }}><Text style={{ fontSize: 18, fontWeight: '800', color: accent }}>{rate}%</Text><Text style={{ fontSize: 11, color: '#94A3B8' }}>Rate</Text></View>
+            <View style={{ alignItems: 'center' }}><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{total}</Text><Text style={{ fontSize: 11, color: '#94A3B8' }}>Total</Text></View>
+            <View style={{ alignItems: 'center' }}><Text style={{ fontSize: 18, fontWeight: '800', color: '#FFF' }}>{done}</Text><Text style={{ fontSize: 11, color: '#94A3B8' }}>Done</Text></View>
           </View>
         </View>
-        <View style={styles.cardBox}>
-          <Text style={styles.sectionTitle}>Daily Quests</Text>
-          <View style={styles.inputContainer}>
-            <TextInput style={[styles.input, { flex: 2 }]} placeholder="Custom quest..." placeholderTextColor="#94A3B8" value={newQuestText} onChangeText={setNewQuestText} />
-            <TextInput style={styles.xpInput} placeholder="XP" placeholderTextColor="#94A3B8" keyboardType="numeric" value={newQuestXp} onChangeText={setNewQuestXp} maxLength={3} />
-            <TouchableOpacity style={styles.addButton} onPress={addQuest}><Text style={styles.buttonTextInside}>+ Add</Text></TouchableOpacity>
+
+        {/* MOODS */}
+        <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+          <TouchableOpacity style={{ flex: 1, backgroundColor: isC ? '#0284C7' : '#334155', padding: 12, borderRadius: 10, alignItems: 'center', marginRight: 5 }} onPress={() => setMood('Calm')}><Text style={{ color: '#FFF', fontWeight: '600' }}>🧘 Calm</Text></TouchableOpacity>
+          <TouchableOpacity style={{ flex: 1, backgroundColor: !isC ? '#7C3AED' : '#334155', padding: 12, borderRadius: 10, alignItems: 'center', marginLeft: 5 }} onPress={() => setMood('Creative')}><Text style={{ color: '#FFF', fontWeight: '600' }}>🎨 Creative</Text></TouchableOpacity>
+        </View>
+
+        {/* QUESTS */}
+        <View style={{ backgroundColor: '#1E293B', borderRadius: 12, padding: 12, marginBottom: 20, borderWidth: 1, borderColor: border }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#FFF', marginBottom: 10 }}>Quests</Text>
+          <View style={{ flexDirection: 'row', marginBottom: 15 }}>
+            <TextInput style={{ flex: 2, backgroundColor: '#334155', borderRadius: 8, paddingHorizontal: 10, color: '#FFF', height: 36, fontSize: 12 }} placeholder="Quest..." placeholderTextColor="#94A3B8" value={newTxt} onChangeText={setNewTxt} />
+            <TextInput style={{ width: 40, backgroundColor: '#334155', borderRadius: 8, textAlign: 'center', color: '#34D399', height: 36, fontSize: 12, marginLeft: 5 }} placeholder="XP" placeholderTextColor="#94A3B8" keyboardType="numeric" value={newXp} onChangeText={setNewXp} maxLength={3} />
+            <TouchableOpacity style={{ backgroundColor: '#10B981', justifyContent: 'center', height: 36, paddingHorizontal: 10, borderRadius: 8, marginLeft: 5 }} onPress={addQ}><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '600' }}>+ Add</Text></TouchableOpacity>
           </View>
-          {quests.map((item) => (
-            <View key={item.id} style={[styles.questItem, item.completed && styles.questCompleted]}>
-              <TouchableOpacity style={styles.questTextContainer} onPress={() => toggleQuest(item.id, item.completed, item.xpReward)}>
-                <Text style={[styles.questText, item.completed && styles.textCrossed]}>{item.completed ? '✅ ' : '🔲 '} {item.text}</Text>
-                <Text style={styles.xpRewardText}>+{item.xpReward} XP</Text>
+          {quests.map(q => (
+            <View key={q.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#334155', padding: 10, borderRadius: 8, marginBottom: 8, opacity: q.completed ? 0.6 : 1 }}>
+              <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, marginRight: 5 }} onPress={() => toggleQ(q.id, q.completed, q.xpReward)}>
+                <Text style={{ color: '#FFF', fontSize: 13, textDecorationLine: q.completed ? 'line-through' : 'none' }}>{q.completed ? '✅ ' : '🔲 '} {q.text}</Text>
+                <Text style={{ color: '#34D399', fontWeight: 'bold', fontSize: 11 }}>+{q.xpReward} XP</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.deleteButton} onPress={() => deleteQuest(item.id, item.completed, item.xpReward)}><Text style={styles.deleteIcon}>❌</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => delQ(q.id, q.completed, q.xpReward)}><Text style={{ fontSize: 12 }}>❌</Text></TouchableOpacity>
             </View>
           ))}
         </View>
-        <View style={styles.cardBox}>
-          <Text style={styles.sectionTitle}>Creative Space Chat</Text>
-          <View style={styles.inputContainer}>
-            <TextInput style={styles.input} placeholder="Share an unfiltered thought..." placeholderTextColor="#94A3B8" value={inputText} onChangeText={setInputText} />
-            <TouchableOpacity style={styles.sendButton} onPress={sendMessage}><Text style={styles.buttonTextInside}>Post</Text></TouchableOpacity>
+
+        {/* CHAT */}
+        <View style={{ backgroundColor: '#1E293B', borderRadius: 12, padding: 12, marginBottom: 20, borderWidth: 1, borderColor: border }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#FFF', marginBottom: 10 }}>Creative Space</Text>
+          <View style={{ flexDirection: 'row', marginBottom: 15 }}>
+            <TextInput style={{ flex: 1, backgroundColor: '#334155', borderRadius: 8, paddingHorizontal: 10, color: '#FFF', height: 36, fontSize: 12 }} placeholder="Thought..." placeholderTextColor="#94A3B8" value={inTxt} onChangeText={setInTxt} />
+            <TouchableOpacity style={{ backgroundColor: '#6366F1', justifyContent: 'center', height: 36, paddingHorizontal: 12, borderRadius: 8, marginLeft: 5 }} onPress={sendM}><Text style={{ color: '#FFF', fontSize: 12, fontWeight: '600' }}>Post</Text></TouchableOpacity>
           </View>
-          <View style={styles.chatFeed}>
-            {messages.map((msg) => (
-              <View key={msg.id} style={[styles.msgBubbleRow, msg.sender === 'User' ? styles.userMsgRow : styles.systemMsgRow]}>
-                <View style={styles.msgTextContainer}><Text style={styles.msgText}>{msg.text}</Text></View>
-                <TouchableOpacity style={styles.chatDeleteButton} onPress={() => deleteMessage(msg.id, msg.sender)}><Text style={styles.chatDeleteIcon}>🗑️</Text></TouchableOpacity>
-              </View>
-            ))}
-          </View>
+          {messages.map(m => (
+            <View key={m.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderRadius: 8, marginBottom: 6, backgroundColor: m.sender === 'User' ? '#4338CA' : '#475569' }}>
+              <Text style={{ color: '#FFF', fontSize: 13, flex: 1, marginRight: 5 }}>{m.text}</Text>
+              <TouchableOpacity onPress={() => delM(m.id, m.sender)}><Text style={{ fontSize: 12 }}>🗑️</Text></TouchableOpacity>
+            </View>
+          ))}
         </View>
-        <TouchableOpacity style={styles.resetButton} onPress={resetProgress}><Text style={styles.resetButtonText}>🧹 Reset Progress & Day</Text></TouchableOpacity>
+
+        {/* RESET */}
+        <TouchableOpacity style={{ backgroundColor: '#7F1D1D', padding: 12, borderRadius: 10, alignItems: 'center' }} onPress={() => { setXp(0); setQuests([]); setMessages([]); }}><Text style={{ color: '#FCA5A5', fontWeight: '700', fontSize: 13 }}>🧹 Reset Progress</Text></TouchableOpacity>
+
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scrollContainer: { padding: 20, paddingBottom: 40 },
-  headerContainer: { alignItems: 'center', marginBottom: 25, marginTop: 10 },
-  appTitle: { fontSize: 32, fontWeight: 'bold', color: '#F8FAFC', letterSpacing: 2 },
-  badgeContainer: { backgroundColor: '#38BDF8', paddingVertical: 6, paddingHorizontal: 16, borderRadius: 20, marginTop: 8 },
-  badgeText: { color: '#0F172A', fontWeight: 'bold', fontSize: 14 },
-  xpText: { color: '#94A3B8', marginTop: 6, fontSize: 16, fontWeight: '600' },
-  moodContainer: { marginBottom: 25 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#F1F5F9', marginBottom: 12 },
-  row: { flexDirection: 'row' },
-  moodButton: { flex: 1, backgroundColor: '#334155', padding: 14, borderRadius: 12, alignItems: 'center', marginHorizontal: 5 },
-  activeCalm: { backgroundColor: '#0284C7' },
-  activeCreative: { backgroundColor: '#7C3AED' },
-  buttonText: { color: '#FFFFFF', fontWeight: '600' },
-  cardBox: { backgroundColor: '#1E293B', borderRadius: 16, padding: 16, marginBottom: 25, borderWidth: 1, borderColor: '#334155' },
-  inputContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, width: '100%' },
-  input: { flex: 1, backgroundColor: '#334155', borderRadius: 12, paddingHorizontal: 14, color: '#FFFFFF', height: 38, fontSize: 13 },
-  xpInput: { width: 44, backgroundColor: '#334155', borderRadius: 12, textAlign: 'center', color: '#34D399', height: 38, fontSize: 13, marginLeft: 6, fontWeight: '600' },
-  addButton: { backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center', height: 32, paddingHorizontal: 10, borderRadius: 8, marginLeft: 6 },
-  sendButton: { backgroundColor: '#6366F1', justifyContent: 'center', alignItems: 'center', height: 34, paddingHorizontal: 14, borderRadius: 8, marginLeft: 8 },
-  buttonTextInside: { color: '#FFFFFF', fontWeight: '600', fontSize: 12 },
-  questItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#334155', padding: 14, borderRadius: 10, marginBottom: 10 },
-  questTextContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flex: 1, marginRight: 10 },
-  questCompleted: { backgroundColor: '#1E293B', opacity: 0.6, borderColor: '#475569', borderWidth: 1 },
-  questText: { color: '#F8FAFC', fontSize: 14, flex: 1 },
-  textCrossed: { textDecorationLine: 'line-through', color: '#94A3B8' },
-  xpRewardText: { color: '#34D399', fontWeight: 'bold', fontSize: 12, marginHorizontal: 8 },
-  deleteButton: { padding: 5 },
-  deleteIcon: { fontSize: 14 },
-  chatFeed: { marginTop: 5 },
-  msgBubbleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 12, borderRadius: 12, marginBottom: 8, width: '100%' },
-  userMsgRow: { backgroundColor: '#4338CA' },
-  systemMsgRow: { backgroundColor: '#475569' },
-  msgTextContainer: { flex: 1, marginRight: 10 },
-  msgText: { color: '#F8FAFC', fontSize: 14 },
-  chatDeleteButton: { padding: 4 },
-  chatDeleteIcon: { fontSize: 14 },
-  resetButton: { backgroundColor: '#7F1D1D', padding: 14, borderRadius: 12, alignItems: 'center', marginTop: 10, marginBottom: 20, borderWidth: 1, borderColor: '#991B1B' },
-  resetButtonText: { color: '#FCA5A5', fontWeight: '700', fontSize: 14 }
-});
